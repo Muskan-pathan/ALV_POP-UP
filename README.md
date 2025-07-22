@@ -1,4 +1,4 @@
-Displaying Purchase Order Details in POP-UP.
+Displaying Purchase Order Details in POP-UP format using ALV.
 
 Enetr Purchase Order number and execute.
 
