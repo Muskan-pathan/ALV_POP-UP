@@ -1,0 +1,85 @@
+REPORT ZDEMO_MUSKAN2.
+
+TABLES EKKO.
+
+TYPES:BEGIN OF lty_ekko,
+      EBELN TYPE EBELN,
+      BUKRS TYPE BUKRS,
+      BSART TYPE ESART,
+      AEDAT TYPE ERDAT,
+      ERNAM TYPE ERNAM,
+    END OF lty_ekko.
+
+DATA: lt_ekko TYPE TABLE OF lty_ekko,
+      lwa_ekko TYPE lty_ekko.
+
+DATA: lt_fieldcat TYPE SLIS_T_FIELDCAT_ALV,
+      ls_fieldcat TYPE SLIS_FIELDCAT_ALV.
+
+SELECT-OPTIONS: s_ekko FOR ekko-ebeln.
+
+SELECT EBELN BUKRS BSART AEDAT ERNAM
+FROM EKKO
+INTO TABLE lt_ekko
+WHERE ebeln IN s_ekko.
+
+IF lt_ekko IS INITIAL.
+MESSAGE 'Data not found' TYPE 'E'.
+ENDIF.
+
+ls_fieldcat-col_pos = '1'.
+ls_fieldcat-fieldname = 'EBELN'.
+ls_fieldcat-seltext_l = 'Purchasing Document Number'.
+ls_fieldcat-tabname   = 'lt_ekko'.
+APPEND ls_fieldcat TO lt_fieldcat.
+CLEAR: ls_fieldcat.
+
+ls_fieldcat-col_pos = '2'.
+ls_fieldcat-fieldname = 'BUKRS'.
+ls_fieldcat-seltext_l = 'Company Code'.
+ls_fieldcat-tabname   = 'lt_ekko'.
+APPEND ls_fieldcat TO lt_fieldcat.
+CLEAR: ls_fieldcat.
+
+ls_fieldcat-col_pos = '3'.
+ls_fieldcat-fieldname = 'BSART'.
+ls_fieldcat-seltext_l = 'Purchasing Document Type'.
+ls_fieldcat-tabname   = 'lt_ekko'.
+APPEND ls_fieldcat TO lt_fieldcat.
+CLEAR: ls_fieldcat.
+
+ls_fieldcat-col_pos = '4'.
+ls_fieldcat-fieldname = 'AEDAT'.
+ls_fieldcat-seltext_l = 'Creation Date'.
+ls_fieldcat-tabname   = 'lt_ekko'.
+APPEND ls_fieldcat TO lt_fieldcat.
+CLEAR: ls_fieldcat.
+
+ls_fieldcat-col_pos = '5'.
+ls_fieldcat-fieldname = 'ERNAM'.
+ls_fieldcat-seltext_l = 'Created By'.
+ls_fieldcat-tabname   = 'lt_ekko'.
+APPEND ls_fieldcat TO lt_fieldcat.
+CLEAR: ls_fieldcat.
+
+IF sy-subrc <> 0.
+MESSAGE 'Fieldcat not generated' TYPE 'E'.
+ENDIF.
+
+CALL FUNCTION 'REUSE_ALV_POPUP_TO_SELECT'
+  EXPORTING
+   I_TITLE                        = 'Purchase Document Details'
+   I_ALLOW_NO_SELECTION           = 'X'
+   I_ZEBRA                        = 'X'
+    i_tabname                     = 'lt_ekko'
+   I_STRUCTURE_NAME               = 'lty_ekko'
+   IT_FIELDCAT                    = lt_fieldcat
+  tables
+    t_outtab                      = lt_ekko
+ EXCEPTIONS
+   PROGRAM_ERROR                 = 1
+   OTHERS                        = 2
+          .
+IF sy-subrc <> 0.
+MESSAGE 'Error in displaying' TYPE 'E'.
+ENDIF.
